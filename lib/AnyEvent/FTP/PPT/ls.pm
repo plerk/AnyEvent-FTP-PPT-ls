@@ -9,6 +9,7 @@ package AnyEvent::FTP::PPT::ls;
 use File::stat;
 use Getopt::Std;
 use Exporter ();
+our @ISA       = qw( Exporter );
 our @EXPORT_OK = qw( ls );
 #use strict;
 
@@ -29,6 +30,7 @@ our @EXPORT_OK = qw( ls );
 
 sub ls {
   local @ARGV = @_;
+  my $output = '';
 
 my @perms = qw(--- --x -w- -wx r-- r-x rw- rwx);
 my @ftype = qw(. p c ? d ? b ? - ? l ? s ? ? ?);
@@ -114,7 +116,7 @@ sub DirEntries {
 			push(@Entries, \%Attributes);
 			return @Entries;
 		}
-		print "pls: can't access '$_[0]': $!\n";
+		$output .= "pls: can't access '$_[0]': $!\n";
 		return ();
 	}
 	while ($Name = readdir(DH)) {
@@ -173,9 +175,9 @@ my $isdst = 0;
 		if (defined($Attributes->{$Entry})) {
 #        1         2         3         4         5         6         7
 #23456789*123456789*123456789*123456789*123456789*123456789*123456789*
-			printf("%10d ", $Attributes->{$Entry}->ino);
+			$output .= sprintf("%10d ", $Attributes->{$Entry}->ino);
 		} else {
-			print "_________ ";
+			$output .= "_________ ";
 		}
 	}
 	if (exists($Options->{'s'})) {
@@ -184,60 +186,60 @@ my $isdst = 0;
 			if ($Blocks eq '') {
 				$Blocks = 0;
 			}
-			printf("%4d ",
+			$output .= sprintf("%4d ",
 			 $Blocks / $BlockSize +
 			  (($Blocks % $BlockSize)
 			   > 0));
 		} else {
-			print "____ ";
+			$output .= "____ ";
 		}
 	}
 	if (!exists($Options->{'l'})) {
-		print "$Entry\n";
+		$output .= "$Entry\n";
 	} else {
 		if (!defined($Attributes->{$Entry})) {
-			print <<UNDEFSTAT;
+			$output .= <<UNDEFSTAT;
 __________ ___ ________ ________ ________ ___ __  _____ 
 UNDEFSTAT
 		} else {
 			$Mode =
 			 format_mode($Attributes->{$Entry}->mode);
-			print "$Mode ";
+			$output .= "$Mode ";
 			#printf("%8o ",
 			# $Attributes->{$Entry}->mode);
-			printf("%3d ",
+			$output .= sprintf("%3d ",
 			  $Attributes->{$Entry}->nlink);
 			if (exists($Options->{'n'})) {
-				printf("%-8d ",
+				$output .= sprintf("%-8d ",
 				 $Attributes->{$Entry}->uid);
 			} else {
 				$Uid =
 			  &$Getpwuid($Attributes->{$Entry}->uid);
 				if (defined($Uid)) {
-					printf("%-8s ", $Uid);
+					$output .= sprintf("%-8s ", $Uid);
 				} else {
-					printf("%-8d ",
+					$output .= sprintf("%-8d ",
 				 $Attributes->{$Entry}->uid);
 				}
 			}
 			if (exists($Options->{'n'})) {
-				printf("%-8d ",
+				$output .= sprintf("%-8d ",
 				 $Attributes->{$Entry}->gid);
 			} else {
 				$Gid =
 			  &$Getgrgid($Attributes->{$Entry}->gid);
 				if (defined($Gid)) {
-					printf("%-8s ", $Gid);
+					$output .= sprintf("%-8s ", $Gid);
 				} else {
-					printf("%-8d ",
+					$output .= sprintf("%-8d ",
 				 $Attributes->{$Entry}->gid);
 				}
 			}
 			if ($Attributes->{$Entry}->mode & 0140000) {
-				printf("%9d ",
+				$output .= sprintf("%9d ",
 				 $Attributes->{$Entry}->size);
 			} else {
-				printf("%4x,%4x ",
+				$output .= sprintf("%4x,%4x ",
 				 (($Attributes->{$Entry}->dev
 				  & 0xFFFF000) > 16),
 				 $Attributes->{$Entry}->dev
@@ -253,19 +255,19 @@ UNDEFSTAT
 			($sec,$min,$hour,$mday,$mon,$year,
 			 $wday,$yday,$isdst) =
                          localtime($Time);
-			print $Month[$mon];
+			$output .= $Month[$mon];
 			if ($mday < 10) {
-				print "  $mday ";
+				$output .= "  $mday ";
 			} else {
-				print " $mday ";
+				$output .= " $mday ";
 			}
 			if ($Now - $Time <= $SixMonths) {
-				printf("%02d:%02d", $hour, $min);
+				$output .= sprintf("%02d:%02d", $hour, $min);
 			} else {
-				printf(" %04d", $year + 1900);
+				$output .= sprintf(" %04d", $year + 1900);
 			}
 		}
-		print " $Entry\n";
+		$output .= " $Entry\n";
 	}
 }
 
@@ -309,12 +311,12 @@ sub List {
 
 	# ------ print directory name if -R
 	if (exists($Options->{'R'})) {
-		print "$Name:\n";
+		$output .= "$Name:\n";
 	}
 
 	# ----- print total in blocks if -s or -l
 	if (exists($Options->{'l'}) || exists($Options->{'s'})) {
-		print "total $TotalBlocks\n";
+		$output .= "total $TotalBlocks\n";
 	}
 
 	# ------ sort entry list
@@ -347,15 +349,15 @@ sub List {
 			# don't blank pad to eol of line
 			$Piece =~ s/\s+$//
 			 if (($elt+1) % $Cols == 0);
-			print $Piece;
-			print "\n" if (($elt+1) % $Cols == 0);
+			$output .= $Piece;
+			$output .= "\n" if (($elt+1) % $Cols == 0);
 		}
-		print "\n" if (($elt+1) % $Cols == 0);
+		$output .= "\n" if (($elt+1) % $Cols == 0);
 	}
 
 	# ------ print blank line if -R
 	if (exists($Options->{'R'})) {
-		print "\n";
+		$output .= "\n";
 	}
 
 	# ------ list subdirectories of this directory
@@ -492,15 +494,16 @@ if ($#ARGV < 0) {
 	}
 	foreach $Arg (Order(\%Options, \%Attributes, @Dirs)) {
 		if (!exists($Options{'R'})) {
-			print "\n" if (!$First);
+			$output .= "\n" if (!$First);
 			$First = 0;
-			print "$Arg:\n" if ($ArgCount > 0);
+			$output .= "$Arg:\n" if ($ArgCount > 0);
 		}
 		List($Arg, \%Options, 0,
 		 DirEntries(\%Options, $Arg));
 	}
 }
 
+  return $output;
 } # end sub ls
 
 1;
