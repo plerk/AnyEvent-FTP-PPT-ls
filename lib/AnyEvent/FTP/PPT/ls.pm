@@ -1,11 +1,15 @@
-#!/usr/bin/perl -w
-#!//c/perl/5.00502/bin/MSWin32-x86-object/perl.exe -w
-#E:/perl/5.00502/bin/MSWin32-x86/perl.exe -w
+package AnyEvent::FTP::PPT::ls;
+
+# ABSTRACT: list file/directory information
+# VERSION
+
 # Perl Power Tool - ls(1)
 
 # ------ use/require pragmas
 use File::stat;
 use Getopt::Std;
+use Exporter ();
+our @EXPORT_OK = qw( ls );
 #use strict;
 
 # ------ partial inline of Stat::lsMode v0.50 code
@@ -22,6 +26,9 @@ use Getopt::Std;
 # You may distribute this module under the same terms as Perl itself.
 #
 # $Revision: 1.2 $ $Date: 2004/08/05 14:17:43 $
+
+sub ls {
+  local @ARGV = @_;
 
 my @perms = qw(--- --x -w- -wx r-- r-x rw- rwx);
 my @ftype = qw(. p c ? d ? b ? - ? l ? s ? ? ?);
@@ -494,19 +501,24 @@ if ($#ARGV < 0) {
 	}
 }
 
+} # end sub ls
+
+1;
+
 __END__
 
 =pod
 
-=head1 NAME
-
-ls - list file/directory information
-
 =head1 SYNOPSIS
 
-ls [-1RSacdfiklnrstu] [file ...]
+ use AnyEvent::FTP::PPT::ls qw( ls );
+ 
+ my $output = ls('-l');
 
 =head1 DESCRIPTION
+
+This is the ls snarked from PPT as a module.  The rest
+of this document comes from the original PPT ls documentation.
 
 This programs lists information about files and directories.
 If it is invoked without file/directory name arguments,
