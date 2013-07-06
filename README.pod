@@ -1,0 +1,143 @@
+=pod
+
+=head1 NAME
+
+AnyEvent::FTP::PPT::ls - list file/directory information
+
+=head1 VERSION
+
+version 0.01
+
+=head1 SYNOPSIS
+
+ use AnyEvent::FTP::PPT::ls qw( ls );
+ 
+ my $output = ls('-l');
+
+=head1 DESCRIPTION
+
+This is the ls snarked from PPT as a module.  The rest
+of this document comes from the original PPT ls documentation.
+
+This programs lists information about files and directories.
+If it is invoked without file/directory name arguments,
+it lists the contents of the current directory.  
+Otherwise, B<ls> lists information about the files and
+information about the contents of the directories (but
+see B<-d>).  Furthermore, without any option arguments
+B<ls> justs lists the names of files and directories.
+All files are listed before all directories.
+The default sort order is ascending ASCII on filename.
+
+=head2 OPTIONS
+
+The BSD options
+'1ACFLRSTWacdfgiklmnopqrstux'
+are recognized,
+but only '1RSacdfiklnrstu' are implemented:
+
+=over 4
+
+=item -1
+
+List entries 1 per line (default if output is not a tty).
+
+=item -R
+
+Recursively list the contents of all directories, breadth-first.
+
+=item -S
+
+Sort descending by size.
+
+=item -a
+
+List all files (normally files starting with '.' are ignored).
+
+=item -c
+
+Sort by decending last modification time of inode.
+
+=item -d
+
+Do not list directory contents.
+
+=item -f
+
+Do not sort -- list in whatever order files/directories are returned
+by the directory read function.
+
+=item -i
+
+List file inode number.  (Doesn't mean much on non-inode systems.)
+
+=item -k
+
+When used with B<-s>, list file/directory size in 1024-byte blocks.
+
+=item -l
+
+Long format listing of mode -- # of links, owner name, group name,
+size in bytes, time of last modification, and name.
+
+=item -n
+
+List numeric uid and gid (default on platforms without getpwuid()).
+
+=item -r
+
+Reverse sorting order.
+
+=item -s
+
+List file/directory size in 512-byte blocks.  (May not mean much
+on non-Unix systems.)
+
+=item -t
+
+Sort by decending last modification time.
+
+=item -u
+
+Sort by decending last access time.
+
+=back
+
+=head1 ENVIRONMENT
+
+=head1 BUGS
+
+The file metadata from stat() is used, which may not necessarily
+mean much on non-Unix systems.  Specifically, the uid, gid, inode,
+and block numbers may be meaningless (or less than meaningful
+at least).
+
+The B<-l> option does not yet list the major and minor
+device numbers for special files, but it does list
+the value of the 'dev' field as 2 hex 16-bit words.
+Doing this properly would
+probably require filesystem type probing.
+
+=head1 AUTHOR
+
+This Perl implementation of I<ls>
+was written by Mark Leighton Fisher of Thomson Consumer Electronics,
+I<fisherm@tce.com>.
+
+=head1 COPYRIGHT and LICENSE
+
+This program is free and open software. You may use, modify,
+distribute, and sell this program (and any modified variants) in any
+way you wish, provided you do not restrict others from doing the same.
+
+=head1 AUTHOR
+
+Graham Ollis <plicease@cpan.org>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2013 by Graham Ollis.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
